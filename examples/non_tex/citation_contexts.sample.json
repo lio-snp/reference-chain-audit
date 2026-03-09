@@ -1,0 +1,25 @@
+{
+  "main_text_source": "manual export from Word or note-taking workflow",
+  "citekeys": [
+    "smith2023llmfinance",
+    "zhang2022creditrisk"
+  ],
+  "contexts": {
+    "smith2023llmfinance": [
+      {
+        "file": "chapter3.docx",
+        "line": 0,
+        "command": "manual",
+        "snippet": "Recent studies show that large language models can improve financial text analysis and downstream risk classification tasks."
+      }
+    ],
+    "zhang2022creditrisk": [
+      {
+        "file": "chapter4.docx",
+        "line": 0,
+        "command": "manual",
+        "snippet": "Satellite and alternative data can supplement traditional credit-scoring features for small and medium-sized enterprises."
+      }
+    ]
+  }
+}
