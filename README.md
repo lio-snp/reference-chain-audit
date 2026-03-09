@@ -1,5 +1,7 @@
 # Reference Chain Audit
 
+English | [简体中文](README_zh.md)
+
 A Codex skill and script bundle for auditing references end-to-end before final citation-style cleanup.
 
 It checks three things for every cited item:
@@ -16,7 +18,7 @@ This repository is best described as:
 
 - style-agnostic at the audit and decision-rule layer
 - LaTeX/BibTeX-first in the packaged automation
-- usable with non-TeX workflows when citation contexts are supplied separately
+- now more practical for non-TeX workflows through a CSL JSON importer and `citation_contexts` skeleton generation
 
 It is not a general-purpose citation formatter. APA, GB/T 7714, Chicago, and similar styles are handled as a follow-up layer after the evidence chain is verified.
 
@@ -59,6 +61,24 @@ Minimum practical inputs:
 
 The wrapper supports this path through `--contexts-json`.
 
+### 3. CSL JSON preparation flow
+
+If your references come from Zotero or another tool that exports CSL JSON, you can now generate non-TeX audit inputs directly:
+
+```bash
+python3 scripts/import_csl_json.py \
+  --csl-json examples/non_tex/csl_items.sample.json \
+  --out-bib writing/paper/references.imported.bib \
+  --out-mapping writing/paper/build/csl_mapping.json \
+  --out-contexts-skeleton writing/paper/build/citation_contexts.json
+```
+
+This produces:
+
+- a BibTeX file for the rest of the audit pipeline
+- a JSON mapping from original CSL ids to generated citekeys
+- a `citation_contexts.json` skeleton that you can fill with local citation snippets from Word, Markdown, or notes
+
 ## Citation Styles: APA and GB/T 7714
 
 This repository does consider style requirements, but only as a separate layer.
@@ -93,7 +113,9 @@ For more, see:
 ```text
 reference-chain-audit/
 ├── SKILL.md
+├── LICENSE
 ├── README.md
+├── README_zh.md
 ├── requirements.txt
 ├── requirements-optional.txt
 ├── agents/
@@ -101,7 +123,8 @@ reference-chain-audit/
 ├── examples/
 │   └── non_tex/
 │       ├── README.md
-│       └── citation_contexts.sample.json
+│       ├── citation_contexts.sample.json
+│       └── csl_items.sample.json
 ├── references/
 │   ├── decision-rules.md
 │   ├── report-template.md
@@ -110,6 +133,7 @@ reference-chain-audit/
     ├── build_reference_audit_matrix.py
     ├── extract_citation_contexts.py
     ├── extract_pdf_links.py
+    ├── import_csl_json.py
     ├── link_browser_probe.py
     ├── run_reference_chain_audit.py
     └── subset_cited_bib.py
@@ -144,12 +168,27 @@ python3 scripts/run_reference_chain_audit.py \
   --outdir writing/paper/build/reference_audit
 ```
 
-### Non-TeX workflow
+### Non-TeX workflow with existing contexts
 
 ```bash
 python3 scripts/run_reference_chain_audit.py \
   --contexts-json examples/non_tex/citation_contexts.sample.json \
   --bib writing/paper/references.bib \
+  --outdir writing/paper/build/reference_audit
+```
+
+### Non-TeX workflow starting from CSL JSON
+
+```bash
+python3 scripts/import_csl_json.py \
+  --csl-json examples/non_tex/csl_items.sample.json \
+  --out-bib writing/paper/references.imported.bib \
+  --out-mapping writing/paper/build/csl_mapping.json \
+  --out-contexts-skeleton writing/paper/build/citation_contexts.json
+
+python3 scripts/run_reference_chain_audit.py \
+  --contexts-json writing/paper/build/citation_contexts.json \
+  --bib writing/paper/references.imported.bib \
   --outdir writing/paper/build/reference_audit
 ```
 
@@ -180,6 +219,7 @@ Typical outputs include:
 - `cited_subset.bib`
 - `pdf_reference_links.json`
 - `reference_audit_matrix.json`
+- `csl_mapping.json`
 - a report based on `references/report-template.md`
 
 ## Decision Policy
@@ -199,17 +239,18 @@ Current packaged automation is strongest for:
 - LaTeX citation extraction
 - BibTeX metadata handling
 - PDF hyperlink extraction
+- CSL JSON import into BibTeX plus citekey mapping
 
-If you want deeper support for Word, Zotero, CSL JSON, or RIS workflows, the next practical extension is to add importers that generate `citation_contexts.json` and normalized metadata automatically.
+If you want deeper support for Word, Zotero, CSL JSON, or RIS workflows, the next practical extension is to add more importers and direct context-extraction helpers.
 
 ## Roadmap
 
 Reasonable next additions:
 
-- CSL JSON importer
 - RIS importer
 - style-only checker for APA and GB/T 7714
 - richer matching between PDF links and reference metadata
+- direct helpers for collecting citation contexts from Word or Markdown exports
 
 ## Codex Skill Usage
 
@@ -225,6 +266,6 @@ If you promote this repository on GitHub, describe it as:
 
 - reference evidence audit
 - style-agnostic at the rule layer
-- LaTeX/BibTeX-first starter tooling
+- LaTeX/BibTeX-first starter tooling with a practical CSL JSON bridge for non-TeX workflows
 
 That description is accurate and sets the right expectation for APA, GB/T 7714, and non-TeX workflows.

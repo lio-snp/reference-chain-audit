@@ -1,4 +1,4 @@
 version: 1
 display_name: Reference Chain Audit
 short_description: Audit references across existence, local claim relevance, and DOI or URL landing correctness before final APA or GB/T cleanup.
-default_prompt: Audit cited references end-to-end for a thesis or paper. Use the packaged LaTeX and BibTeX workflow when available, or work from precomputed citation contexts for other writing stacks. Separate evidence-chain failures from style-only issues such as APA or GB/T 7714 formatting, and keep, replace, or remove DOI or URL only after landing correctness is confirmed.
+default_prompt: Audit cited references end-to-end for a thesis or paper. Use the packaged LaTeX and BibTeX workflow when available, or bridge non-TeX workflows through precomputed citation contexts or the bundled CSL JSON importer. Separate evidence-chain failures from style-only issues such as APA or GB/T 7714 formatting, and keep, replace, or remove DOI or URL only after landing correctness is confirmed.

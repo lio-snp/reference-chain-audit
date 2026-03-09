@@ -1,0 +1,47 @@
+[
+  {
+    "id": "smith2023-zotero",
+    "type": "article-journal",
+    "title": "LLM Finance for Risk Classification",
+    "author": [
+      {
+        "family": "Smith",
+        "given": "Alex"
+      },
+      {
+        "family": "Wang",
+        "given": "Rui"
+      }
+    ],
+    "container-title": "Journal of Financial AI",
+    "issued": {
+      "date-parts": [[2023, 6, 1]]
+    },
+    "volume": "5",
+    "issue": "2",
+    "page": "101-120",
+    "DOI": "10.1234/jfai.2023.001",
+    "URL": "https://doi.org/10.1234/jfai.2023.001",
+    "language": "en",
+    "abstract": "We study how large language models improve risk classification in financial text analysis.",
+    "keyword": ["LLM", "finance", "risk"]
+  },
+  {
+    "id": "zhang2022-zotero",
+    "type": "report",
+    "title": "Satellite Signals for SME Credit Risk",
+    "author": [
+      {
+        "family": "Zhang",
+        "given": "Wei"
+      }
+    ],
+    "publisher": "Institute for Digital Finance",
+    "issued": {
+      "date-parts": [[2022, 9, 15]]
+    },
+    "URL": "https://example.org/reports/satellite-sme-credit-risk",
+    "language": "zh-CN",
+    "abstract": "This report examines how satellite observations can supplement SME credit risk assessment."
+  }
+]

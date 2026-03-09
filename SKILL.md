@@ -1,6 +1,6 @@
 ---
 name: reference-chain-audit
-description: Audit cited references end-to-end before final style cleanup: verify the cited item exists, the local claim is supported by the abstract or official summary, and the DOI or URL lands on the correct item page. Use when checking thesis or paper references across LaTeX/BibTeX workflows, validating PDF hyperlinks, or separating evidence-chain failures from style-only issues such as APA or GB/T 7714 formatting.
+description: Audit cited references end-to-end before final style cleanup: verify the cited item exists, the local claim is supported by the abstract or official summary, and the DOI or URL lands on the correct item page. Use when checking thesis or paper references across LaTeX/BibTeX workflows, validating PDF hyperlinks, importing CSL JSON metadata for non-TeX workflows, or separating evidence-chain failures from style-only issues such as APA or GB/T 7714 formatting.
 ---
 
 # Reference Chain Audit
@@ -36,10 +36,12 @@ APA, GB/T 7714, Chicago, and similar styles are handled as a separate formatting
 1. Build or supply the cited set and citation contexts.
 - For LaTeX workflows, run `scripts/extract_citation_contexts.py` on the main TeX file.
 - For non-TeX workflows, prepare an equivalent `citation_contexts.json` and pass it to the wrapper with `--contexts-json`.
+- If your references start as CSL JSON, first run `scripts/import_csl_json.py` to generate BibTeX plus a contexts skeleton.
 - The context file should identify each citekey and the local sentence or paragraph where it is cited.
 
 2. Prepare the cited metadata set.
 - For LaTeX plus BibTeX workflows, run `scripts/subset_cited_bib.py` on the master `.bib`.
+- For CSL JSON workflows, use `scripts/import_csl_json.py` to convert the export into BibTeX and a citekey mapping.
 - For other writing stacks, export or convert the cited references into a BibTeX file when possible.
 - Treat BibTeX here as a practical metadata carrier, not as a requirement imposed by the audit logic itself.
 
@@ -99,6 +101,8 @@ The following do not count as full confirmation on their own:
   - Outputs actual cited keys and local context snippets.
 - `scripts/subset_cited_bib.py`
   - Writes a cited-only BibTeX file for focused checking.
+- `scripts/import_csl_json.py`
+  - Imports a CSL JSON export into BibTeX, a citekey mapping, and an optional citation-context skeleton.
 - `scripts/extract_pdf_links.py`
   - Extracts external hyperlinks from the compiled PDF and saves page-level evidence.
 - `scripts/build_reference_audit_matrix.py`
