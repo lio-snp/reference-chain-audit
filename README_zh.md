@@ -157,6 +157,10 @@ reference-chain-audit/
 
 但 skill 本身的审计逻辑并不被这些格式完全限制。
 
+## Acknowledgments
+
+本项目部分思路受到 [Bib-Check](https://github.com/LeoJ-xy/Bib-Check) 的启发。Bib-Check 主要面向 BibTeX 校验与联网元数据矫正；Reference Chain Audit 则进一步扩展为一个 agent-first 的引用证据链审计 skill，重点关注 existence、local claim relevance 与 landing correctness。
+
 ## GitHub 推广时的表述
 
 更准确的短描述应该是：

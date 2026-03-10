@@ -157,6 +157,10 @@ The packaged automation is strongest for:
 
 But the audit logic itself is broader than those formats.
 
+## Acknowledgments
+
+This project was inspired in part by [Bib-Check](https://github.com/LeoJ-xy/Bib-Check) by LeoJ-xy, a BibTeX validation and online metadata-correction tool. Reference Chain Audit extends that direction toward an agent-first workflow focused on existence, local claim relevance, and landing correctness.
+
 ## For GitHub Promotion
 
 The most accurate short description is:
