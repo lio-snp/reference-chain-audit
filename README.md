@@ -2,27 +2,39 @@
 
 English | [简体中文](README_zh.md)
 
-A Codex skill and script bundle for auditing references end-to-end before final citation-style cleanup.
+An agent-first skill for Codex, Claude Code, and similar coding agents to audit references end-to-end before final citation-style cleanup.
 
-It checks three things for every cited item:
+This repository is intentionally organized around a skill, not around a manual script workflow.
 
-1. the cited item exists
-2. the local claim is supported by the abstract, official summary, or dataset description
-3. the DOI or URL lands on the correct page for that exact item
+## What This Repo Is
 
-This repository is intended for thesis and paper workflows where a reference is not considered safe just because a DOI or URL is present.
+This repo gives an agent a simple job:
 
-## Positioning
+1. verify the cited item exists
+2. verify the local claim is actually supported
+3. verify the DOI or URL lands on the correct page
+4. separate those findings from style-only issues such as APA or GB/T 7714 formatting
 
-This repository is best described as:
+The scripts in `scripts/` are optional helpers. They are there to accelerate extraction, normalization, and evidence gathering when useful. They are not meant to be a required checklist that every user must run manually.
 
-- style-agnostic at the audit and decision-rule layer
-- LaTeX/BibTeX-first in the packaged automation
-- now more practical for non-TeX workflows through a CSL JSON importer and `citation_contexts` skeleton generation
+## Default Usage
 
-It is not a general-purpose citation formatter. APA, GB/T 7714, Chicago, and similar styles are handled as a follow-up layer after the evidence chain is verified.
+The intended usage is:
 
-## What It Audits
+- give the draft, references, or exported metadata to the agent
+- ask the agent to audit references using this skill
+- let the agent decide whether helper scripts are worth using
+
+Most users should start with a prompt like:
+
+```text
+Audit the references in this paper using the reference-chain-audit skill.
+Focus on existence, local claim relevance, and landing correctness.
+Treat APA or GB/T issues as style follow-up only.
+Use any helper scripts only if they actually save time.
+```
+
+## Core Audit Logic
 
 A reference passes only if all three checks are satisfied:
 
@@ -30,83 +42,80 @@ A reference passes only if all three checks are satisfied:
 - `local claim relevance`
 - `landing correctness`
 
-Examples of failures:
+Examples of failure:
 
 - the DOI resolves to a different paper
-- the URL is a tokenized CNKI session link
-- the title exists, but the cited sentence overclaims what the source actually studies
-- the reference is formatted correctly in APA or GB/T 7714, but points to the wrong item
+- the URL is a CNKI tokenized session link
+- the cited sentence overclaims what the source actually studies
+- the entry looks correct in APA or GB/T 7714, but points to the wrong item
 
-## Workflow Types
+## Skill-First Workflow
 
-### 1. LaTeX plus BibTeX workflow
+### 1. Gather local citation evidence
 
-This is the most fully supported path.
+The agent finds where each reference is cited and what the surrounding sentence is actually claiming.
 
-- parse TeX citation commands
-- build a cited-only BibTeX subset
-- optionally extract hyperlinks from the compiled PDF
-- build an audit matrix for manual or semi-automated review
-- optionally run a browser probe for final landing-page confirmation
+### 2. Normalize metadata when needed
 
-### 2. Non-TeX workflow
+If the available references are messy, the agent may normalize them into BibTeX or another structured form.
 
-Word, Zotero, EndNote, CSL JSON, RIS, and mixed writing stacks can still use the audit logic.
+### 3. Audit the evidence chain
 
-Minimum practical inputs:
+The agent checks:
 
-- a `citation_contexts.json` file that maps citekeys to local citation snippets
-- a BibTeX export, or a metadata source converted into BibTeX
-- optional compiled PDF for embedded-link evidence
+- existence
+- relevance to the local claim
+- landing correctness
 
-The wrapper supports this path through `--contexts-json`.
+### 4. Handle style separately
 
-### 3. CSL JSON preparation flow
+APA, GB/T 7714, Chicago, and similar formats are a follow-up layer.
 
-If your references come from Zotero or another tool that exports CSL JSON, you can now generate non-TeX audit inputs directly:
+### 5. Produce a report
 
-```bash
-python3 scripts/import_csl_json.py \
-  --csl-json examples/non_tex/csl_items.sample.json \
-  --out-bib writing/paper/references.imported.bib \
-  --out-mapping writing/paper/build/csl_mapping.json \
-  --out-contexts-skeleton writing/paper/build/citation_contexts.json
-```
+The agent should output clear decisions such as:
 
-This produces:
+- keep as is
+- revise prose
+- replace DOI or URL
+- remove DOI or URL
+- replace citation
 
-- a BibTeX file for the rest of the audit pipeline
-- a JSON mapping from original CSL ids to generated citekeys
-- a `citation_contexts.json` skeleton that you can fill with local citation snippets from Word, Markdown, or notes
+## Optional Helper Scripts
 
-## Citation Styles: APA and GB/T 7714
+Use these only when they reduce work.
 
-This repository does consider style requirements, but only as a separate layer.
+- `scripts/run_reference_chain_audit.py`
+  - wrapper for the packaged extraction and matrix workflow
+- `scripts/extract_citation_contexts.py`
+  - TeX citation-context extraction
+- `scripts/subset_cited_bib.py`
+  - cited-only BibTeX subset generation
+- `scripts/import_csl_json.py`
+  - CSL JSON to BibTeX plus citekey mapping and contexts skeleton
+- `scripts/extract_pdf_links.py`
+  - compiled PDF hyperlink extraction
+- `scripts/link_browser_probe.py`
+  - optional browser landing-page probe
+- `scripts/build_reference_audit_matrix.py`
+  - review-matrix generation
 
-### APA
+## Non-TeX Workflows
 
-Typical style-only issues include:
+Non-TeX workflows are supported in an agent-first way.
 
-- capitalization and sentence-case versus title-case cleanup
-- italics and punctuation
-- retrieval date formatting
+The agent can work from:
 
-These do not override evidence-chain failures.
+- `citation_contexts.json`
+- BibTeX or equivalent metadata
+- CSL JSON exports from Zotero or similar tools
+- compiled PDFs with embedded links
 
-### GB/T 7714
+If CSL JSON is available, the agent may optionally call `scripts/import_csl_json.py` to generate:
 
-Typical style-only issues include:
-
-- type markers such as `[J]`, `[M]`, or `[EB/OL]`
-- full-width versus half-width punctuation
-- author presentation rules required by the target institution
-
-These do not override evidence-chain failures.
-
-For more, see:
-
-- `references/style-scope.md`
-- `references/decision-rules.md`
+- BibTeX
+- a citekey mapping
+- a `citation_contexts.json` skeleton
 
 ## Repository Layout
 
@@ -116,156 +125,43 @@ reference-chain-audit/
 ├── LICENSE
 ├── README.md
 ├── README_zh.md
-├── requirements.txt
-├── requirements-optional.txt
 ├── agents/
-│   └── openai.yaml
-├── examples/
-│   └── non_tex/
-│       ├── README.md
-│       ├── citation_contexts.sample.json
-│       └── csl_items.sample.json
 ├── references/
-│   ├── decision-rules.md
-│   ├── report-template.md
-│   └── style-scope.md
-└── scripts/
-    ├── build_reference_audit_matrix.py
-    ├── extract_citation_contexts.py
-    ├── extract_pdf_links.py
-    ├── import_csl_json.py
-    ├── link_browser_probe.py
-    ├── run_reference_chain_audit.py
-    └── subset_cited_bib.py
+├── scripts/
+└── examples/
 ```
 
-## Installation
+## What To Read
 
-### Core dependencies
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Optional browser probing
-
-```bash
-pip install -r requirements-optional.txt
-python -m playwright install chromium
-```
-
-## Quick Start
-
-### LaTeX plus BibTeX
-
-```bash
-python3 scripts/run_reference_chain_audit.py \
-  --main-tex writing/paper/main.tex \
-  --bib writing/paper/references.bib \
-  --pdf writing/paper/build/main.pdf \
-  --outdir writing/paper/build/reference_audit
-```
-
-### Non-TeX workflow with existing contexts
-
-```bash
-python3 scripts/run_reference_chain_audit.py \
-  --contexts-json examples/non_tex/citation_contexts.sample.json \
-  --bib writing/paper/references.bib \
-  --outdir writing/paper/build/reference_audit
-```
-
-### Non-TeX workflow starting from CSL JSON
-
-```bash
-python3 scripts/import_csl_json.py \
-  --csl-json examples/non_tex/csl_items.sample.json \
-  --out-bib writing/paper/references.imported.bib \
-  --out-mapping writing/paper/build/csl_mapping.json \
-  --out-contexts-skeleton writing/paper/build/citation_contexts.json
-
-python3 scripts/run_reference_chain_audit.py \
-  --contexts-json writing/paper/build/citation_contexts.json \
-  --bib writing/paper/references.imported.bib \
-  --outdir writing/paper/build/reference_audit
-```
-
-### Optional Bib-Check stage
-
-If you have a local clone of Bib-Check, the wrapper can use it from:
-
-1. `--bibcheck-root`
-2. `$BIBCHECK_ROOT`
-3. `<repo>/_external/Bib-Check`
-
-Example:
-
-```bash
-python3 scripts/run_reference_chain_audit.py \
-  --main-tex writing/paper/main.tex \
-  --bib writing/paper/references.bib \
-  --outdir writing/paper/build/reference_audit \
-  --run-bibcheck \
-  --bibcheck-root /path/to/Bib-Check
-```
-
-## Outputs
-
-Typical outputs include:
-
-- `citation_contexts.json`
-- `cited_subset.bib`
-- `pdf_reference_links.json`
-- `reference_audit_matrix.json`
-- `csl_mapping.json`
-- a report based on `references/report-template.md`
-
-## Decision Policy
-
-Default policy highlights:
-
-- prefer stable official landing pages over search or session pages
-- prefer DOI canonical links or official publisher pages for non-Chinese references
-- prefer official journal abstract pages or stable DOI landings for Chinese references
-- avoid tokenized CNKI links
-- if the correct landing page cannot be confirmed, remove or replace DOI or URL instead of keeping a risky link
+- `SKILL.md`
+  - the main skill behavior
+- `references/decision-rules.md`
+  - keep, replace, or remove DOI/URL decisions
+- `references/style-scope.md`
+  - APA and GB/T as style-only follow-up
+- `references/report-template.md`
+  - structured reporting template
 
 ## Boundaries
 
-Current packaged automation is strongest for:
+This is not a general-purpose citation formatter.
+
+It is a reference evidence audit skill.
+
+The packaged automation is strongest for:
 
 - LaTeX citation extraction
 - BibTeX metadata handling
+- CSL JSON import
 - PDF hyperlink extraction
-- CSL JSON import into BibTeX plus citekey mapping
 
-If you want deeper support for Word, Zotero, CSL JSON, or RIS workflows, the next practical extension is to add more importers and direct context-extraction helpers.
+But the audit logic itself is broader than those formats.
 
-## Roadmap
+## For GitHub Promotion
 
-Reasonable next additions:
+The most accurate short description is:
 
-- RIS importer
-- style-only checker for APA and GB/T 7714
-- richer matching between PDF links and reference metadata
-- direct helpers for collecting citation contexts from Word or Markdown exports
-
-## Codex Skill Usage
-
-This repository is structured as a Codex skill.
-
-- `SKILL.md` defines when and how the skill should be used
-- `agents/openai.yaml` provides metadata for agent packaging
-- `references/` contains the decision rules and reporting templates used by the skill
-
-## Publishing Guidance
-
-If you promote this repository on GitHub, describe it as:
-
-- reference evidence audit
-- style-agnostic at the rule layer
-- LaTeX/BibTeX-first starter tooling with a practical CSL JSON bridge for non-TeX workflows
-
-That description is accurate and sets the right expectation for APA, GB/T 7714, and non-TeX workflows.
+- reference evidence audit skill
+- agent-first workflow
+- LaTeX/BibTeX-first helper tooling
+- practical CSL JSON bridge for non-TeX workflows
