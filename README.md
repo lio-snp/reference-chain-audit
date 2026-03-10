@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 An agent-first skill for Codex, Claude Code, and similar coding agents to audit references end-to-end before final citation-style cleanup.
 
-This repository is intentionally organized around a skill, not around a manual script workflow.
+It packages a reusable reference-audit skill together with optional helper scripts for extraction, normalization, and evidence gathering.
 
 ## What This Repo Is
 
@@ -19,7 +19,7 @@ The scripts in `scripts/` are optional helpers. They are there to accelerate ext
 
 ## Default Usage
 
-The intended usage is:
+Recommended usage:
 
 - give the draft, references, or exported metadata to the agent
 - ask the agent to audit references using this skill
