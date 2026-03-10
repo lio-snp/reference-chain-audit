@@ -1,0 +1,25 @@
+flowchart LR
+    A["Inputs\nDraft text\nBibTeX / CSL JSON\nCompiled PDF"] --> B["reference-chain-audit skill\nAgent-first reasoning"]
+
+    B --> C1["Existence\nDoes the cited item exist?"]
+    B --> C2["Local Claim Relevance\nDoes the source support the local sentence?"]
+    B --> C3["Landing Correctness\nDoes the DOI/URL land on the right page?"]
+
+    C1 --> D["Decision Layer\nkeep | revise | replace | remove"]
+    C2 --> D
+    C3 --> D
+
+    D --> E["Output\nAudit report\nStyle follow-up\nAPA / GB/T cleanup later"]
+
+    B -. optional helpers .-> H1["TeX context extraction"]
+    B -. optional helpers .-> H2["CSL JSON import"]
+    B -. optional helpers .-> H3["PDF link extraction"]
+    B -. optional helpers .-> H4["Browser probe"]
+
+    classDef core fill:#eef6ff,stroke:#244b7a,stroke-width:1.5px,color:#10253e;
+    classDef decision fill:#f3fbf7,stroke:#2e6b53,stroke-width:1.5px,color:#153427;
+    classDef helper fill:#faf8ef,stroke:#8b6f20,stroke-width:1.2px,color:#4d3c10,stroke-dasharray: 4 3;
+
+    class A,B,C1,C2,C3 core;
+    class D,E decision;
+    class H1,H2,H3,H4 helper;
